@@ -494,7 +494,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: "\uC548\uB155"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7e17a1b926f815d45bbe3d8f13234d91, type: 2}
   m_sharedMaterial: {fileID: -4449949931379029093, guid: 7e17a1b926f815d45bbe3d8f13234d91, type: 2}
@@ -715,7 +715,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: "\uC9F1\uAD6C"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7e17a1b926f815d45bbe3d8f13234d91, type: 2}
   m_sharedMaterial: {fileID: -4449949931379029093, guid: 7e17a1b926f815d45bbe3d8f13234d91, type: 2}
@@ -795,6 +795,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 621521557}
   m_CullTransparentMesh: 1
+--- !u!1 &759152589
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 759152591}
+  - component: {fileID: 759152590}
+  m_Layer: 0
+  m_Name: Director
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!320 &759152590
+PlayableDirector:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 759152589}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_PlayableAsset: {fileID: 11400000, guid: cb211675abaca314ba8545f00f289cb7, type: 2}
+  m_InitialState: 1
+  m_WrapMode: 2
+  m_DirectorUpdateMode: 1
+  m_InitialTime: 0
+  m_SceneBindings:
+  - key: {fileID: -6848167374535161628, guid: cb211675abaca314ba8545f00f289cb7, type: 2}
+    value: {fileID: 1319421190}
+  m_ExposedReferences:
+    m_References: []
+--- !u!4 &759152591
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 759152589}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1319421188
 GameObject:
   m_ObjectHideFlags: 0
@@ -806,7 +857,6 @@ GameObject:
   - component: {fileID: 1319421189}
   - component: {fileID: 1319421190}
   - component: {fileID: 1319421191}
-  - component: {fileID: 1319421192}
   m_Layer: 5
   m_Name: DialogeUI
   m_TagString: Untagged
@@ -861,24 +911,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &1319421192
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1319421188}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56fc0e5f71ab2754f8cc1d8cf42578f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TimelineVN.Test.DialogueUITester
-  dialogueUI: {fileID: 1319421190}
-  lines:
-  - speakerName: "\uC0C8\uC2F9\uC774"
-    text: "\uD5EC\uB85C\uD5EC\uB85C"
-  - speakerName: "\uC9F1\uAD6C"
-    text: "\uBABB\uB9D0\uB824"
 --- !u!1 &1587384962
 GameObject:
   m_ObjectHideFlags: 0
@@ -964,3 +996,4 @@ SceneRoots:
   - {fileID: 619394802}
   - {fileID: 402093863}
   - {fileID: 55635824}
+  - {fileID: 759152591}
