@@ -37,6 +37,11 @@ namespace TimelineVN.Dialogue
 		public bool HasSpeaker => !string.IsNullOrWhiteSpace(speakerName);
 
 		/// <summary>
+		/// 표시할 대사 내용이 있는지 여부
+		/// </summary>
+		public bool HasText => !string.IsNullOrWhiteSpace(text);
+
+		/// <summary>
 		/// 인스펙터 빈 대사 초기화용
 		/// </summary>
 		public DialogueLine()
