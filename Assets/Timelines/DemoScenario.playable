@@ -89,7 +89,7 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: DialogueClip
+    m_DisplayName: "\uD480\uC232\uC774 \uBC14\uC2A4\uB77D \uAC70\uB838\uB2E4."
   - m_Version: 1
     m_Start: 2
     m_ClipIn: 0
@@ -158,7 +158,7 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: DialogueClip
+    m_DisplayName: "\uC6B0\uC640, \uB10C \uB204\uAD6C\uC57C?"
   - m_Version: 1
     m_Start: 3
     m_ClipIn: 0
@@ -227,7 +227,7 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: DialogueClip
+    m_DisplayName: "\uB098? \uB098\uB294 \uB4C0\uC57C. \uD480\uC78E \uC694\uC815\uC774\uC9C0"
   - m_Version: 1
     m_Start: 4
     m_ClipIn: 0
@@ -296,7 +296,7 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: DialogueClip
+    m_DisplayName: "\uADC0\uC5FD\uB2E4!"
   - m_Version: 1
     m_Start: 5
     m_ClipIn: 0
@@ -365,7 +365,7 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: DialogueClip
+    m_DisplayName: "..\uACE0\uB9C8\uC6CC."
   m_Markers:
     m_Objects: []
 --- !u!114 &-5788949908660427041

@@ -30,6 +30,11 @@ namespace TimelineVN.Dialogue
 		private bool waitForInput = true;
 
 		/// <summary>
+		/// 이 클립 구간에 표시할 대사
+		/// </summary>
+		public DialogueLine Line => line;
+
+		/// <summary>
 		/// 대사는 섞이지 않으므로 블렌딩을 막아 클립 겹침을 차단한다
 		/// </summary>
 		public ClipCaps clipCaps => ClipCaps.None;
