@@ -4,9 +4,7 @@ using UnityEngine;
 namespace TimelineVN.Choice
 {
 	/// <summary>
-	/// 선택지 목록을 화면에 띄우고, 플레이어가 고른 항목을 들고 있는다.
-	/// 고른 뒤에 무엇을 할지는 결과를 가져가는 쪽이 정한다.
-	/// TODO: ChoiceClip에서 활성화 시킬거고, 일단 ChoiceUITester로 처리..
+	/// 선택지 목록을 화면에 띄우고 플레이어가 고른 항목을 들고 있는다.
 	/// </summary>
 	public class ChoiceUI : MonoBehaviour
 	{
@@ -18,12 +16,13 @@ namespace TimelineVN.Choice
 
 		/// <summary>
 		/// 화면에 미리 놓아둔 선택지 버튼들. 이 개수가 한 번에 띄울 수 있는 최대임.
+		/// 일단 데모씬은 5개로 해둠.
 		/// </summary>
 		[SerializeField]
 		private ChoiceSlot[] slots;
 
 		/// <summary>
-		/// 플레이어가 고른 항목. 가져가면 비워진다
+		/// 플레이어가 고른 항목의 Data이며 가져가면 비워진다
 		/// </summary>
 		private ChoiceOption selected;
 
@@ -37,11 +36,9 @@ namespace TimelineVN.Choice
 		/// </summary>
 		public bool HasSelection => selected != null;
 
-		/// <summary>
-		/// 편집 편의상 씬에 선택지를 보이게 둬도 첫 프레임에 번쩍이지 않도록 감춘다
-		/// </summary>
 		private void Awake()
 		{
+			// 첫프레임에 튀는거 방지용
 			Hide();
 		}
 
@@ -50,13 +47,17 @@ namespace TimelineVN.Choice
 		/// </summary>
 		public void Show(List<ChoiceOption> options)
 		{
+			// 띄울 항목이 있는지는 부르는 쪽이 이미 걸러서 온다. 여기서는 터지지 않게만 막는다
 			if (options == null || options.Count == 0)
 			{
-				Debug.LogError("띄울 선택지가 없다", this);
 				Hide();
 
 				return;
 			}
+
+			// 슬롯을 켜기 전에 그룹을 먼저 살린다. 순서가 반대면 버튼이 잠긴 채로 켜졌다가
+			// 풀리면서 Unity 가 0.1초짜리 색 전이를 돌려서 깜빡이는 것처럼 보이는 문제가 있었음
+			SetVisible(true);
 
 			int shownCount = Mathf.Min(options.Count, slots.Length);
 
@@ -68,17 +69,16 @@ namespace TimelineVN.Choice
 				}
 				else
 				{
+					// 보여줄 필요없는건 비움처리
 					slots[i].Clear();
 				}
 			}
-
-			SetVisible(true);
 
 			IsWaitingForSelection = true;
 		}
 
 		/// <summary>
-		/// 선택지를 화면에서 내리고 남은 선택 결과도 비운다
+		/// 모든 선택지를 화면에서 끄고 남은 선택 결과도 비운다
 		/// </summary>
 		public void Hide()
 		{
@@ -96,7 +96,7 @@ namespace TimelineVN.Choice
 		/// <summary>
 		/// 슬롯이 눌렸을 때 그 항목을 선택 결과로 받아둔다
 		/// 체크만 해두고 HasSelection 을통해 체크후, TakeSelection으로 가져간다.
-		/// 즉 실제 처리는 VisualNovelDirection에서 이거 가져다가 점프처리함
+		/// 즉 실제 처리는 VisualNovelDirector에서 이거 가져다가 점프처리함
 		/// </summary>
 		public void Select(ChoiceOption option)
 		{
@@ -127,7 +127,7 @@ namespace TimelineVN.Choice
 		{
 			canvasGroup.alpha = visible ? 1f : 0f;
 
-			// 감춘 뒤에도 켜져 있으면 보이지 않는 버튼이 클릭을 먹는다
+			// hide 상태일때 버튼이 클릭 안되게 처리
 			canvasGroup.interactable = visible;
 			canvasGroup.blocksRaycasts = visible;
 		}

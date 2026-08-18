@@ -87,11 +87,11 @@ namespace TimelineVN.Playback
 		/// 늦는다. 그 한 프레임 동안 다음 대사가 화면에 번쩍인다 그래서 개고생함..
 		/// </summary>
 		/// <example>
-		/// 정지 시각이 [0.999999, 1.999999] 이고 60fps 로 재생 중이라면
+		/// 정지 시각이 [0.999999, 1.999999] 이고 재생 할때
 		/// 시각이 0.99 -> 1.01 로 넘어간 프레임  ->  0.999999 로 되돌리고 속도 0
-		/// 그 상태에서 스페이스를 누르면         ->  속도를 되돌려 다시 흐른다
+		/// 그 상태에서 재개되면                  ->  속도를 되돌려 다시 흐른다
 		/// 대기 중에 Timeline 창에서 5초로 끌면  ->  판정 없이 기준만 옮겨 그 자리에 머문다
-		/// 0.5 초 재생 중에 스페이스를 누르면    ->  0.999999 로 건너뛰고 거기서 멈춘다
+		/// 0.5 초 재생 중에 재개 되면            ->  0.999999 로 건너뛰고 거기서 멈춘다
 		/// </example>
 		private void LateUpdate()
 		{
@@ -166,8 +166,40 @@ namespace TimelineVN.Playback
 
 			// 눌려 있는 동안 계속 인정하면 짧은 클립이 이어진 구간에서 대사를 통째로 놓친다.
 			// 빠르게 넘기는 것은 나중에 스킵 기능이 맡는다
-			return advanceAction.action.WasPressedThisFrame();
+			if (!advanceAction.action.WasPressedThisFrame())
+			{
+				return false;
+			}
+
+#if UNITY_EDITOR
+			// 인스펙터 빈 곳을 클릭했는데 대사가 넘어가는 걸 막음. 일단 에디터는 마우스만 쓰는중이어서 마우스만 처리..
+			if (advanceAction.action.activeControl?.device is Mouse && !IsPointerInsideGameView())
+			{
+				return false;
+			}
+#endif
+
+			return true;
 		}
+
+#if UNITY_EDITOR
+		/// <summary>
+		/// 마우스 포인터가 게임 화면 안에 있는지.
+		/// 빌드에서는 화면 밖을 누를 방법이 없어서 에디터에서만 본다
+		/// </summary>
+		private static bool IsPointerInsideGameView()
+		{
+			if (Mouse.current == null)
+			{
+				return true;
+			}
+
+			Vector2 position = Mouse.current.position.ReadValue();
+
+			return position.x >= 0f && position.y >= 0f
+				&& position.x <= Screen.width && position.y <= Screen.height;
+		}
+#endif
 
 		/// <summary>
 		/// 진행 입력을 켜거나 끈다
