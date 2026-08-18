@@ -38,6 +38,20 @@ namespace TimelineVN.Choice
 		[SerializeField, HideInInspector]
 		private ChoiceReturnClip defaultReturn;
 
+		#region Inspector Name
+		
+		/// <summary>
+		/// 인스펙터 그릴 때 쓰는 필드들이다.
+		/// 이름 바뀌면 에셋에서 못 찾을까봐 이렇게 했다
+		/// </summary>
+		public const string ChoiceIdFieldName = nameof(choiceId);
+
+		public const string OptionsFieldName = nameof(options);
+
+		public const string DefaultReturnFieldName = nameof(defaultReturn);
+
+		#endregion
+
 		/// <summary>
 		/// 이 선택지의 번호
 		/// </summary>
