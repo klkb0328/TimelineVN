@@ -1,3 +1,4 @@
+using System.Text;
 using TimelineVN.Timeline.Editor;
 using UnityEditor;
 using UnityEditor.Timeline;
@@ -11,6 +12,12 @@ namespace TimelineVN.Choice.Editor
 	[CustomTimelineEditor(typeof(ChoiceShowClip))]
 	public class ChoiceShowClipEditor : ClipEditor
 	{
+		/// <summary>
+		/// 분기를 안 붙인 항목이 있을 때 클립에 띄울 경고 문구의 앞머리.
+		/// 뒤에 어느 항목인지가 붙는다
+		/// </summary>
+		private const string NoBranchWarning = "분기가 없는 항목 : ";
+
 		/// <summary>
 		/// 선택지가 만들어질 때 번호를 발급하고 복귀 지점을 딸려 만든다
 		/// </summary>
@@ -63,7 +70,7 @@ namespace TimelineVN.Choice.Editor
 		public override ClipDrawOptions GetClipOptions(TimelineClip clip)
 		{
 			// 기본 옵션에 클립 오류 표시가 담겨 있어 새로 만들지 않고 받아서 얹는다
-			var options = base.GetClipOptions(clip);
+			ClipDrawOptions options = base.GetClipOptions(clip);
 
 			var showClip = clip.asset as ChoiceShowClip;
 			if (showClip == null)
@@ -73,7 +80,49 @@ namespace TimelineVN.Choice.Editor
 
 			options.tooltip = ChoiceClipNaming.BuildShowTooltip(showClip);
 
+			// 기본 옵션이 이미 오류를 물고 있으면 그게 더 급한 문제라 안 덮어씀
+			if (string.IsNullOrEmpty(options.errorText))
+			{
+				options.errorText = BuildWarning(showClip);
+			}
+
 			return options;
+		}
+
+		/// <summary>
+		/// 분기를 안 붙인 항목이 있으면 그게 뭔지 알려주는 경고 문구를 만든다.
+		/// 다 붙어 있으면 빈 문자열이고, 그러면 클립에 경고 아이콘이 안 뜬다
+		/// </summary>
+		/// <example>
+		/// "따라간다" 에만 분기가 없음  ->  분기가 없는 항목 : 따라간다
+		/// 문구도 안 적고 분기도 없음   ->  분기가 없는 항목 : (빈 항목)
+		/// 다 붙어 있음                 ->  (빈 문자열)
+		/// </example>
+		private static string BuildWarning(ChoiceShowClip showClip)
+		{
+			var builder = new StringBuilder();
+
+			foreach (ChoiceOption option in showClip.Options)
+			{
+				if (option.HasEntry)
+				{
+					continue;
+				}
+
+				if (builder.Length > 0)
+				{
+					builder.Append(", ");
+				}
+
+				builder.Append(ChoiceClipNaming.DescribeOption(option));
+			}
+
+			if (builder.Length == 0)
+			{
+				return string.Empty;
+			}
+
+			return NoBranchWarning + builder;
 		}
 
 		/// <summary>

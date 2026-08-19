@@ -240,8 +240,9 @@ namespace TimelineVN.Choice.Editor
 
 		/// <summary>
 		/// 항목 문구. 아직 안 적었으면 빈자리라는 걸 알린다
+		/// 경고 문구에서도 항목을 가리켜야 해서 밖에 열어둠
 		/// </summary>
-		private static string DescribeOption(ChoiceOption option)
+		public static string DescribeOption(ChoiceOption option)
 		{
 			return option.HasText ? option.Text : EmptyOptionLabel;
 		}
