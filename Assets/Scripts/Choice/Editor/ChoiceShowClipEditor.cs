@@ -96,7 +96,7 @@ namespace TimelineVN.Choice.Editor
 				}
 
 				// 분기 시작 이름에 이 항목 문구가 그대로 들어간다
-				var entryClip = TimelineClipFinder.FindClipOf(timeline, option.Entry);
+				TimelineClip entryClip = TimelineClipFinder.FindClipOf(timeline, option.Entry);
 				
 				if (entryClip != null)
 				{
@@ -109,7 +109,7 @@ namespace TimelineVN.Choice.Editor
 				}
 
 				// 분기 끝에는 몇 번 선택지인지가 들어가서  번호가 바뀌면 여기도 같이 바꿔야 함
-				var exitClip = TimelineClipFinder.FindClipOf(timeline, option.Entry.Exit);
+				TimelineClip exitClip = TimelineClipFinder.FindClipOf(timeline, option.Entry.Exit);
 				if (exitClip != null)
 				{
 					exitClip.displayName = ChoiceClipNaming.BuildExitName(timeline, option.Entry.Exit);

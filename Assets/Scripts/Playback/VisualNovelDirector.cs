@@ -1,3 +1,5 @@
+using TimelineVN.Choice;
+using TimelineVN.Timeline;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Playables;
@@ -20,6 +22,12 @@ namespace TimelineVN.Playback
 		private InputActionReference advanceAction;
 
 		/// <summary>
+		/// 선택지 화면. 플레이어가 고른 결과를 여기서 가져간다.
+		/// </summary>
+		[SerializeField]
+		private ChoiceUI choiceUI;
+
+		/// <summary>
 		/// 이 오브젝트에 붙은 타임라인 재생기. 재생할 타임라인이 바뀌었는지도 여기서 읽는다
 		/// </summary>
 		private PlayableDirector director;
@@ -30,9 +38,9 @@ namespace TimelineVN.Playback
 		private DirectorTimeControl timeControl;
 
 		/// <summary>
-		/// 정지 시각 목록을 들고, 매 프레임 그 중 하나를 지나쳤는지 판정한다
+		/// 멈출 자리, 옮겨갈 자리, 끝나는 자리를 들고 매 프레임 그 중 하나를 지나쳤는지 판정한다
 		/// </summary>
-		private StopPointScanner scanner;
+		private VNTimeScanner scanner;
 
 		/// <summary>
 		/// 지금 스캐너를 만들 때 쓴 타임라인(=시나리오).
@@ -51,20 +59,25 @@ namespace TimelineVN.Playback
 		}
 
 		/// <summary>
-		/// 지금 물려 있는 타임라인으로 스캐너를 만들고 입력을 켠다.
+		/// 지금 물려 있는 타임라인으로 스캐너를 만들고 입력과 종료 알림을 켠다.
 		/// 컴포넌트를 껐다 켜도 그 시점 타임라인 기준으로 다시 잡힌다
 		/// </summary>
 		private void OnEnable()
 		{
 			RebuildScanner();
 			SetAdvanceActionEnabled(true);
+			WarnIfChoiceUIMissing();
+
+			director.stopped += OnDirectorStopped;
 		}
 
 		/// <summary>
-		/// 입력을 끄고, 우리가 걸어둔 정지를 푼다
+		/// 입력과 종료 알림을 끄고, 우리가 걸어둔 정지를 푼다
 		/// </summary>
 		private void OnDisable()
 		{
+			director.stopped -= OnDirectorStopped;
+
 			SetAdvanceActionEnabled(false);
 
 			// 우리가 건 속도는 우리가 푼다. 안 그러면 이 컴포넌트를 끈 뒤에 다른 코드가
@@ -73,14 +86,15 @@ namespace TimelineVN.Playback
 		}
 
 		/// <summary>
-		/// 매 프레임 정지 지점을 지났는지 판정하고, 지났으면 멈춘다.
+		/// 매 프레임 시간축의 어느 점을 지났는지 판정하고 그에 맞게 처리한다.
 		/// 판정할 필요가 없는 경우를 위에서부터 걷어내고 마지막에 진짜 판정만 남긴다
 		///
 		/// 1. 타임라인이 교체됐으면 스캐너를 새로 만든다
 		/// 2. 재생 중이 아니면 대기만 풀고 나간다
-		/// 3. 대기 중이면 기준 시각만 맞추고, 입력이 오면 재개한다
-		/// 4. 연출 도중 입력이면 다음 정지 지점으로 점프한다
-		/// 5. 정지 지점을 지났으면 멈춘다
+		/// 3. 고른 선택지가 있으면 그 분기로 옮겨가고 나간다
+		/// 4. 대기 중이면 기준 시각만 맞추고, 입력이 오면 재개한다
+		/// 5. 연출 도중 입력이면 지금 대사의 대기 지점으로 건너뛴다
+		/// 6. 점을 지났으면 멈추거나 옮겨가거나 끝낸다
 		///
 		/// Update 가 아니라 LateUpdate 인 이유는 Timeline 이 그 둘 사이에서 평가되기 때문이다.
 		/// Update 에서 읽으면 직전 프레임 시각이 나와서, 지나친 걸 알아채도 정정이 한 프레임
@@ -95,7 +109,7 @@ namespace TimelineVN.Playback
 		/// </example>
 		private void LateUpdate()
 		{
-			// 분기로 타임라인이 교체되면 정지 지점도 통째로 달라진다
+			// 분기로 타임라인이 교체되면 시각 목록도 통째로 달라진다
 			if (director.playableAsset as TimelineAsset != cachedTimeline)
 			{
 				RebuildScanner();
@@ -110,13 +124,24 @@ namespace TimelineVN.Playback
 				return;
 			}
 
+			// 대기 판정보다 먼저다. 고르는 시점엔 선택지 클립 정지 지점에 이미 멈춰 있어서
+			// 순서가 반대면 거기서 나가버리고 결과를 영영 못 가져감.. 순서 조심
+			if (TryConsumeSelection())
+			{
+				return;
+			}
+
+			// 선택지가 떠 있는 동안에는 시간을 옮기지 않는다. 옮기면 선택지 클립 구간을
+			// 벗어나 슬롯이 꺼지고, 누르는 중이던 클릭이 취소된다
+			bool waitingForSelection = choiceUI != null && choiceUI.IsWaitingForSelection;
+
 			if (timeControl.IsWaitingForInput)
 			{
 				// 대기 중에도 편집자가 Timeline 창에서 재생 헤드를 끌 수 있다. 판정은 하지 않고
 				// 기준 시각만 따라가야 재개했을 때 끌어다 놓은 자리에서 이어진다
 				scanner.ForceMoveTo(timeControl.CurrentTime);
 
-				if (WasAdvancePressed())
+				if (!waitingForSelection && WasAdvancePressed())
 				{
 					timeControl.Resume();
 				}
@@ -124,9 +149,12 @@ namespace TimelineVN.Playback
 				return;
 			}
 
-			// 연출 도중 입력하면 기다리지 않고 다음 정지 지점으로 건너뛴다. 모든 트랙이
-			// 상태형이라 점프해도 그 시점의 표정과 배경이 정확히 나온다
-			if (WasAdvancePressed() && scanner.TryGetNextStopTime(timeControl.CurrentTime, out double skipTarget))
+			// 연출 도중 입력하면 기다리지 않고 지금 대사의 대기 지점으로 건너뛴다. 모든 트랙이
+			// 상태형이라 건너뛰어도 그 시점의 표정과 배경이 정확히 나온다.
+			// 선택지 클립도 정지 지점을 만드니 여기도 막아야 한다. 안 그러면 배경 클릭에
+			// 선택지 등장 연출이 날아감
+			if (!waitingForSelection && WasAdvancePressed()
+				&& scanner.TryGetSkipTarget(timeControl.CurrentTime, out double skipTarget))
 			{
 				timeControl.StopAt(skipTarget);
 
@@ -137,21 +165,95 @@ namespace TimelineVN.Playback
 			// 스캐너가 이 값과 실제를 견줘서 스크럽이나 점프를 걸러낸다
 			double expectedDelta = Time.deltaTime * timeControl.CurrentSpeed;
 
-			if (scanner.TryGetPassedStopTime(timeControl.CurrentTime, expectedDelta, out double stopTime))
+			// 여기는 게이트를 걸지 않는다. 막으면 선택지 클립의 정지 지점을 못 잡아서
+			// 선택지가 뜬 채로 시간이 그냥 지나가버림..
+			if (scanner.TryGetPassedPoint(timeControl.CurrentTime, expectedDelta, out VNTimePoint point))
 			{
-				timeControl.StopAt(stopTime);
+				ApplyPoint(point);
 			}
 		}
 
 		/// <summary>
+		/// 플레이어가 고른 선택지가 있으면 가져가서 그 분기로 옮겨간다.
+		/// 가져갈 것이 있었으면 참이다. 옮겼는지와는 상관없다
+		/// </summary>
+		private bool TryConsumeSelection()
+		{
+			if (choiceUI == null || !choiceUI.HasSelection)
+			{
+				return false;
+			}
+
+			ChoiceOption selected = choiceUI.TakeSelection();
+
+			// 편집 중에는 분기를 아직 안 이은 항목이 흔하다. 재생이 죽지 않게 재개만 한다
+			if (selected == null || !TryJumpTo(selected.Entry))
+			{
+				timeControl.Resume();
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		/// 지나친 점을 종류대로 처리한다.
+		/// 셋 중 옮겨가기만 실패할 수 있고, 그때는 아무 일 없이 계속 흐른다
+		/// </summary>
+		private void ApplyPoint(VNTimePoint point)
+		{
+			switch (point.Kind)
+			{
+				case VNTimePointKind.Stop:
+					timeControl.StopAt(point.Time);
+					break;
+
+				case VNTimePointKind.Jump:
+					// 목적지 클립이 지워졌으면 옮겨가지 않고 그대로 흘려보낸다
+					TryJumpTo(point.Destination);
+					break;
+
+				case VNTimePointKind.SceneEnd:
+					timeControl.EndScene();
+					break;
+			}
+		}
+
+		/// <summary>
+		/// 도착지 클립이 있는 자리로 옮겨간다. 그 클립을 못 찾으면 아무것도 안 하고 거짓이다
+		/// </summary>
+		private bool TryJumpTo(JumpTarget target)
+		{
+			if (!scanner.TryGetJumpTime(target, out double jumpTime))
+			{
+				return false;
+			}
+
+			timeControl.JumpTo(jumpTime);
+
+			// 우리가 건너뛴 구간은 재생으로 지나온 게 아니다. 기준을 맞춰야 그 사이가 안 걸린다
+			scanner.ForceMoveTo(jumpTime);
+
+			return true;
+		}
+
+		/// <summary>
 		/// 지금 물려 있는 타임라인으로 스캐너를 다시 만든다.
-		/// 정지 지점은 타임라인에 박혀 있는 데이터라, 타임라인이 바뀌면 통째로 다시 뽑아야 한다.
+		/// 시각 목록은 타임라인에 박혀 있는 데이터라, 타임라인이 바뀌면 통째로 다시 뽑아야 한다.
 		/// 분기로 타임라인을 갈아끼울 때도 이 경로를 그대로 탄다
 		/// </summary>
 		private void RebuildScanner()
 		{
 			cachedTimeline = director.playableAsset as TimelineAsset;
-			scanner = new StopPointScanner(cachedTimeline, director.time);
+			scanner = new VNTimeScanner(cachedTimeline, director.time);
+		}
+
+		/// <summary>
+		/// 장면이 끝났을 때 불린다. 우리가 장면 끝 클립에서 끝낸 경우와 타임라인이 자연히
+		/// 끝난 경우가 둘 다 여기로 온다. 그래서 듣는 쪽은 이 자리 하나만 보면 된다
+		/// TODO : 게임플레이를 재개시킬 메시지를 여기서 보낸다. 아직 받는 쪽이 없어서 비워 뒀다
+		/// </summary>
+		private void OnDirectorStopped(PlayableDirector stoppedDirector)
+		{
 		}
 
 		/// <summary>
@@ -221,6 +323,21 @@ namespace TimelineVN.Playback
 			{
 				advanceAction.action.Disable();
 			}
+		}
+
+		/// <summary>
+		/// 선택지 화면이 연결되지 않았으면 알린다.
+		/// 트랙 바인딩에만 걸고 여기를 빠뜨리면 선택지는 뜨는데 골라도 반응이 없다.
+		/// 화면에 단서가 안 남는 고장이라 미리 짚어준다
+		/// </summary>
+		private void WarnIfChoiceUIMissing()
+		{
+			if (choiceUI != null)
+			{
+				return;
+			}
+
+			Debug.LogWarning("Choice UI 가 연결되지 않아 선택지를 골라도 분기하지 않는다", this);
 		}
 	}
 }

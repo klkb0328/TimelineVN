@@ -61,7 +61,6 @@ namespace TimelineVN.Choice.Editor
 		/// 버튼 한 번으로 분기 한 벌을 만들어 준다. 선택지 항목과 분기 시작, 끝이
 		/// 한꺼번에 생기고 셋이 이어진다.
 		/// 분기는 메인 뒤쪽 빈 자리에 놓인다. 재생이 거기까지 흘러가지는 않고 점프로만 들어간다
-		/// TODO : 일단 현재는 MainEndClip에서 안막히게 되어있는데, 작업 안되엇음.
 		/// </summary>
 		/// <example>
 		/// 누르기 전 :  [C1][복귀]     ||
@@ -88,7 +87,7 @@ namespace TimelineVN.Choice.Editor
 
 			entry.SetExit(exit);
 
-			exit.SetReturnTarget(showClip.DefaultReturn);
+			exit.SetDestination(showClip.DefaultReturn);
 
 
 			var option = new ChoiceOption(string.Empty);
@@ -99,7 +98,7 @@ namespace TimelineVN.Choice.Editor
 			entryClip.displayName = ChoiceClipNaming.BuildEntryName(timeline, entry);
 			exitClip.displayName = ChoiceClipNaming.BuildExitName(timeline, exit);
 
-			var showTimelineClip = TimelineClipFinder.FindClipOf(timeline, showClip);
+			TimelineClip showTimelineClip = TimelineClipFinder.FindClipOf(timeline, showClip);
 			if (showTimelineClip != null)
 			{
 				showTimelineClip.displayName = ChoiceClipNaming.BuildShowName(showClip);

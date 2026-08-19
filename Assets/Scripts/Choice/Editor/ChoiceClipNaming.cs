@@ -107,7 +107,7 @@ namespace TimelineVN.Choice.Editor
 		/// </example>
 		public static string BuildExitName(TimelineAsset timeline, ChoiceExitClip exit)
 		{
-			string destination = DescribeTargetKind(exit.ReturnTarget);
+			string destination = DescribeTargetKind(exit.Destination);
 
 			if (!TryFindEntry(timeline, exit, out ChoiceEntryClip entry))
 			{
@@ -139,7 +139,7 @@ namespace TimelineVN.Choice.Editor
 			}
 
 			string kind = DescribeTargetKind(target);
-			var clip = TimelineClipFinder.FindClipOf(timeline, target);
+			TimelineClip clip = TimelineClipFinder.FindClipOf(timeline, target);
 
 			return clip == null ? kind : $"{kind}  ({clip.start:0.0}초)";
 		}

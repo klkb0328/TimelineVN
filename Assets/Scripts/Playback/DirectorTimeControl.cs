@@ -6,7 +6,7 @@ namespace TimelineVN.Playback
 	/// PlayableDirector 의 시간과 속도를 관리한다.
 	/// 재생 그래프를 직접 만지는 것은 이 클래스뿐이다
 	/// VisualNovelDirector 자식으로 존재하고 시간 기능 제공할뿐 실제 호출은 VND에서 해야함
-	/// 어디서 멈출지는 StopPointScanner 가 정한다. 여기는 시키는 자리에서 멈추기만 한다
+	/// 어디서 멈출지는 VNTimeScanner 가 정한다. 여기는 시키는 자리에서 멈추기만 한다
 	/// </summary>
 	public class DirectorTimeControl
 	{
@@ -86,12 +86,48 @@ namespace TimelineVN.Playback
 		}
 
 		/// <summary>
+		/// 주어진 시각으로 옮기고 계속 흐르게 한다.
+		/// 옮긴 자리에서 멈추지 않는다는 점이 StopAt 과 다르다
+		/// </summary>
+		/// <example>
+		/// 선택지를 골랐을 때  ->  그 분기가 시작하는 시각으로 옮긴다
+		/// 분기 끝에 닿았을 때 ->  복귀 지점 시각으로 옮긴다
+		/// </example>
+		public void JumpTo(double time)
+		{
+			director.time = time;
+
+			// StopAt 과 같은 이유로 여기서 평가한다. 안 하면 옮기기 전 화면이 한 프레임 보인다.
+			director.Evaluate();
+
+			// 선택지에서 옮겨올 때는 정지 지점에 멈춰 있는 상태(속도 0)다.
+			// 여기서 안 풀면 착지한 자리에서 그대로 얼어붙음..
+			isWaitingForInput = false;
+			ApplySpeed(playbackSpeed);
+		}
+
+		/// <summary>
+		/// 재생을 끝낸다. 장면이 끝났을 때 부른다.
+		/// 속도 0 과 다르다. 속도 0 은 그래프가 살아 있어서 트랙 믹서가 매 프레임 계속 돌고
+		/// 대사창에 자기 값을 다시 써넣음. 끝난 게 아니라 얼어붙은 거라 게임플레이가
+		/// 재개돼도 Timeline 이 화면을 안 놓는다.. Stop 은 그래프를 정리해서 손을 뗀다
+		/// </summary>
+		public void EndScene()
+		{
+			// 그래프가 사라지면 속도를 되돌릴 대상도 없어서 미리 정리한다
+			isWaitingForInput = false;
+
+			// 여기서 stopped 이벤트가 나간다. 타임라인이 자연히 끝났을 때와 같은 자리다
+			director.Stop();
+		}
+
+		/// <summary>
 		/// 재생 그래프의 모든 루트에 속도를 건다
 		/// 일단 그래프가 보통 한개일텐데 혹시 몰라서 for문으로 돌림..
 		/// </summary>
 		private void ApplySpeed(double speed)
 		{
-			var graph = director.playableGraph;
+			PlayableGraph graph = director.playableGraph;
 
 			// 재생 전이거나 그래프가 이미 정리된 뒤에는 걸 대상이 없다
 			if (!graph.IsValid())

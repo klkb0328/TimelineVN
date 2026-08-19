@@ -2,6 +2,7 @@ using System.ComponentModel;
 using TimelineVN.Timeline;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.Serialization;
 using UnityEngine.Timeline;
 
 namespace TimelineVN.Choice
@@ -12,7 +13,7 @@ namespace TimelineVN.Choice
 	/// JumpTarget 을 안 물려받은 건 일부러다. 여긴 도착지가 아니라서..
 	/// </summary>
 	[DisplayName("Manual/Choice Exit")]
-	public class ChoiceExitClip : PlayableAsset, ITimelineClipAsset
+	public class ChoiceExitClip : PlayableAsset, ITimelineClipAsset, IJumpStartClip
 	{
 		/// <summary>
 		/// 새 클립을 만들 때의 길이. 다른 표식들과 맞춘다
@@ -20,21 +21,22 @@ namespace TimelineVN.Choice
 		private const double DefaultDuration = 0.5;
 
 		/// <summary>
-		/// 분기가 끝난 뒤 돌아갈 자리.
+		/// 이 클립에 닿았을 때 옮겨갈 자리.
 		/// 인스펙터에는 이 필드 대신 드롭다운을 그린다. 감추는 이유는 ChoiceOption.entry 와 같다
 		/// </summary>
-		[SerializeField, HideInInspector]
-		private JumpTarget returnTarget;
+		[SerializeField, HideInInspector, FormerlySerializedAs("returnTarget")]
+		private JumpTarget destination;
 
 		/// <summary>
-		/// 분기가 끝난 뒤 돌아갈 자리
+		/// 이 클립에 닿았을 때 옮겨갈 자리.
+		/// 보통은 복귀 지점이지만 장면 끝일 수도 있어서 목적지라고 부른다
 		/// </summary>
-		public JumpTarget ReturnTarget => returnTarget;
+		public JumpTarget Destination => destination;
 
 		/// <summary>
-		/// 돌아갈 자리가 연결되어 있는지 여부
+		/// 옮겨갈 자리가 연결되어 있는지 여부
 		/// </summary>
-		public bool HasReturnTarget => returnTarget != null;
+		public bool HasDestination => destination != null;
 
 		/// <summary>
 		/// 표식은 겹칠 일이 없어서 블렌딩을 막는다
@@ -47,11 +49,11 @@ namespace TimelineVN.Choice
 		public override double duration => DefaultDuration;
 
 		/// <summary>
-		/// 돌아갈 자리를 지정한다. 분기 추가 버튼과 복귀 지점 목록이 부른다
+		/// 옮겨갈 자리를 지정한다. 분기 추가 버튼과 복귀 지점 목록이 부른다
 		/// </summary>
-		public void SetReturnTarget(JumpTarget returnTarget)
+		public void SetDestination(JumpTarget destination)
 		{
-			this.returnTarget = returnTarget;
+			this.destination = destination;
 		}
 
 		/// <summary>

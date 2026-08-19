@@ -7,7 +7,6 @@ namespace TimelineVN.Timeline
 	/// <summary>
 	/// 점프해서 도착할 수 있는 도착지다. 분기 시작, 복귀 지점, 장면 끝이 여기 속한다.
 	/// 인터페이스가 아니라 추상 클래스인 건 Unity 직렬화 때문임. 그래서 상속으로 처리
-	/// TODO : 아직 이거 구체적인 점프되어서 이쪽으로 이동하는건 안되어있다.
 	/// </summary>
 	public abstract class JumpTarget : PlayableAsset, ITimelineClipAsset
 	{

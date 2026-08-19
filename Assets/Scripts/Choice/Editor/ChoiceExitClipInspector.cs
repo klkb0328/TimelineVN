@@ -33,7 +33,7 @@ namespace TimelineVN.Choice.Editor
 			TimelineAsset timeline = TimelineEditor.inspectedAsset;
 			List<JumpTarget> candidates = CollectReturnTargets(timeline);
 
-			int currentIndex = candidates.IndexOf(exit.ReturnTarget) + 1;
+			int currentIndex = candidates.IndexOf(exit.Destination) + 1;
 			int selectedIndex = EditorGUILayout.Popup("복귀 지점", currentIndex, BuildLabels(timeline, candidates));
 
 			if (selectedIndex == currentIndex)
@@ -45,7 +45,7 @@ namespace TimelineVN.Choice.Editor
 			// 바꾸기 직전에 불러야 바뀌기 전 값이 기록된다
 			// TODO : 이거 나중에 클립같은데에도 쓸수있는지 봐야할듯?
 			Undo.RecordObject(exit, "Set Return Target");
-			exit.SetReturnTarget(selectedIndex == 0 ? null : candidates[selectedIndex - 1]);
+			exit.SetDestination(selectedIndex == 0 ? null : candidates[selectedIndex - 1]);
 			EditorUtility.SetDirty(exit);
 
 			RefreshClipName(timeline, exit);
@@ -111,7 +111,7 @@ namespace TimelineVN.Choice.Editor
 		/// </summary>
 		private static void RefreshClipName(TimelineAsset timeline, ChoiceExitClip exit)
 		{
-			var clip = TimelineClipFinder.FindClipOf(timeline, exit);
+			TimelineClip clip = TimelineClipFinder.FindClipOf(timeline, exit);
 			if (clip == null)
 			{
 				return;
