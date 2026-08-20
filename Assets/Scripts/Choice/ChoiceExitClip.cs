@@ -28,15 +28,31 @@ namespace TimelineVN.Choice
 		private JumpTarget destination;
 
 		/// <summary>
+		/// 이 분기가 시작하는 자리. 짝을 이루는 분기 시작이다.
+		/// 색을 여기서 읽어와 둘이 같은 색으로 칠해진다. 
+		/// </summary>
+		[SerializeField, HideInInspector]
+		private ChoiceEntryClip entry;
+
+		/// <summary>
 		/// 이 클립에 닿았을 때 옮겨갈 자리.
-		/// 보통은 복귀 지점이지만 장면 끝일 수도 있어서 목적지라고 부른다
 		/// </summary>
 		public JumpTarget Destination => destination;
+
+		/// <summary>
+		/// 짝을 이루는 분기 시작
+		/// </summary>
+		public ChoiceEntryClip Entry => entry;
 
 		/// <summary>
 		/// 옮겨갈 자리가 연결되어 있는지 여부
 		/// </summary>
 		public bool HasDestination => destination != null;
+
+		/// <summary>
+		/// 짝인 분기 시작이 연결되어 있는지 여부
+		/// </summary>
+		public bool HasEntry => entry != null;
 
 		/// <summary>
 		/// 표식은 겹칠 일이 없어서 블렌딩을 막는다
@@ -54,6 +70,14 @@ namespace TimelineVN.Choice
 		public void SetDestination(JumpTarget destination)
 		{
 			this.destination = destination;
+		}
+
+		/// <summary>
+		/// 짝을 이루는 분기 시작을 지정한다. 분기 추가 버튼이 이어줄 때 부른다
+		/// </summary>
+		public void SetEntry(ChoiceEntryClip entry)
+		{
+			this.entry = entry;
 		}
 
 		/// <summary>

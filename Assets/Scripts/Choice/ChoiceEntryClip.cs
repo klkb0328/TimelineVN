@@ -19,9 +19,21 @@ namespace TimelineVN.Choice
 		private ChoiceExitClip exit;
 
 		/// <summary>
+		/// Timeline 창에서 이 분기를 칠할 색. 짝인 분기 끝도 같은 색으로 칠해진다.
+		/// 알파 0 은 색을 아직 안 정했다는 뜻이다. 색은 선택지 항목 줄에서 고르므로 여기서는 감춘다
+		/// </summary>
+		[SerializeField, HideInInspector]
+		private Color branchColor;
+
+		/// <summary>
 		/// 이 분기가 끝나는 자리
 		/// </summary>
 		public ChoiceExitClip Exit => exit;
+
+		/// <summary>
+		/// Timeline 창에서 이 분기를 칠할 색
+		/// </summary>
+		public Color BranchColor => branchColor;
 
 		/// <summary>
 		/// 분기의 끝이 연결되어 있는지 여부
@@ -29,11 +41,24 @@ namespace TimelineVN.Choice
 		public bool HasExit => exit != null;
 
 		/// <summary>
+		/// 칠할 색이 정해져 있는지 여부
+		/// </summary>
+		public bool HasBranchColor => branchColor.a > 0f;
+
+		/// <summary>
 		/// 분기의 끝을 지정한다. 분기 추가 버튼이 이어줄 때 부른다
 		/// </summary>
 		public void SetExit(ChoiceExitClip exit)
 		{
 			this.exit = exit;
+		}
+
+		/// <summary>
+		/// 칠할 색을 정한다. 분기 추가 버튼이 팔레트에서 선택가능!
+		/// </summary>
+		public void SetBranchColor(Color branchColor)
+		{
+			this.branchColor = branchColor;
 		}
 	}
 }

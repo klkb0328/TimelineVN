@@ -23,6 +23,18 @@ namespace TimelineVN.Choice
 		[SerializeField, HideInInspector]
 		private ChoiceEntryClip entry;
 
+		#region Inspector Name
+
+		/// <summary>
+		/// 인스펙터 그릴 때 쓰는 필드들이다.
+		/// 항목 한 줄에 문구와 분기 색을 나란히 놓느라 둘 다 필요하다
+		/// </summary>
+		public const string TextFieldName = nameof(text);
+
+		public const string EntryFieldName = nameof(entry);
+
+		#endregion
+
 		/// <summary>
 		/// 선택지 문구
 		/// </summary>

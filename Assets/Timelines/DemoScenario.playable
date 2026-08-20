@@ -18,6 +18,8 @@ MonoBehaviour:
     entry: {fileID: 2485358704041291879}
   - text: "\uBAA8\uB978\uCC99\uD55C\uB2E4"
     entry: {fileID: 8924057832144231853}
+  - text: 
+    entry: {fileID: 0}
   defaultReturn: {fileID: 2099182317172789286}
 --- !u!114 &-7896947286293258959
 MonoBehaviour:
@@ -44,6 +46,7 @@ MonoBehaviour:
   m_Name: ChoiceExitClip
   m_EditorClassIdentifier: Assembly-CSharp::TimelineVN.Choice.ChoiceExitClip
   destination: {fileID: -7896947286293258959}
+  entry: {fileID: 2485358704041291879}
 --- !u!114 &-5788949908660427041
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -366,7 +369,8 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: "C1 : \uB530\uB77C\uAC04\uB2E4 / \uBAA8\uB978\uCC99\uD55C\uB2E4"
+    m_DisplayName: "C1 : \uB530\uB77C\uAC04\uB2E4 / \uBAA8\uB978\uCC99\uD55C\uB2E4
+      / (\uBE48 \uD56D\uBAA9)"
   - m_Version: 1
     m_Start: 3
     m_ClipIn: 0
@@ -1043,6 +1047,7 @@ MonoBehaviour:
   m_Name: ChoiceEntryClip
   m_EditorClassIdentifier: Assembly-CSharp::TimelineVN.Choice.ChoiceEntryClip
   exit: {fileID: -6763349875012884833}
+  branchColor: {r: 1, g: 0.3820755, b: 0.3820755, a: 1}
 --- !u!114 &2538481884163474922
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1938,6 +1943,7 @@ MonoBehaviour:
   m_Name: ChoiceExitClip
   m_EditorClassIdentifier: Assembly-CSharp::TimelineVN.Choice.ChoiceExitClip
   destination: {fileID: 2099182317172789286}
+  entry: {fileID: 8924057832144231853}
 --- !u!114 &8036743428050977157
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1967,3 +1973,4 @@ MonoBehaviour:
   m_Name: ChoiceEntryClip
   m_EditorClassIdentifier: Assembly-CSharp::TimelineVN.Choice.ChoiceEntryClip
   exit: {fileID: 7257177857389173290}
+  branchColor: {r: 0.07075471, g: 0.08897537, b: 1, a: 1}

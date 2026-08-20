@@ -85,10 +85,14 @@ namespace TimelineVN.Choice.Editor
 			var entry = entryClip.asset as ChoiceEntryClip;
 			var exit = exitClip.asset as ChoiceExitClip;
 
+			// 서로를 가리키게 해둬야 분기 끝도 자기 짝의 색을 읽어갈 수 있다
 			entry.SetExit(exit);
+			exit.SetEntry(entry);
 
 			exit.SetDestination(showClip.DefaultReturn);
 
+			// 만들 때 색을 배정한다. 편집자가 매번 고르게 두면 안 고르고 넘어간 분기가 생긴다
+			entry.SetBranchColor(ChoiceBranchPalette.PickUnusedColor(timeline));
 
 			var option = new ChoiceOption(string.Empty);
 			option.SetEntry(entry);

@@ -83,10 +83,6 @@ namespace TimelineVN.Choice.Editor
 		/// 분기 시작 이름. 몇 번 선택지의 어느 항목인지 보여준다.
 		/// 분기는 메인에서 멀리 떨어져 있어서 이게 없으면 어느 게 어느 건지 모른다
 		/// </summary>
-		/// <example>
-		/// 1번 선택지의 "따라간다" 가 데려가는 분기  ->  C1 : 따라간다
-		/// 아무도 안 가리키는 분기                   ->  (연결 없음)
-		/// </example>
 		public static string BuildEntryName(TimelineAsset timeline, ChoiceEntryClip entry)
 		{
 			if (!TryFindOwner(timeline, entry, out ChoiceShowClip owner, out ChoiceOption option))
@@ -100,11 +96,6 @@ namespace TimelineVN.Choice.Editor
 		/// <summary>
 		/// 분기 끝 이름. 어느 선택지의 분기가 어디로 가는지 보여준다
 		/// </summary>
-		/// <example>
-		/// 1번 선택지의 분기가 복귀 지점으로  ->  C1 -> 복귀
-		/// 돌아오지 않고 장면을 끝냄          ->  C1 -> 장면 끝
-		/// 복귀 지점을 안 골랐음              ->  C1 -> (연결 없음)
-		/// </example>
 		public static string BuildExitName(TimelineAsset timeline, ChoiceExitClip exit)
 		{
 			string destination = DescribeTargetKind(exit.Destination);
@@ -240,7 +231,6 @@ namespace TimelineVN.Choice.Editor
 
 		/// <summary>
 		/// 항목 문구. 아직 안 적었으면 빈자리라는 걸 알린다
-		/// 경고 문구에서도 항목을 가리켜야 해서 밖에 열어둠
 		/// </summary>
 		public static string DescribeOption(ChoiceOption option)
 		{
@@ -248,9 +238,10 @@ namespace TimelineVN.Choice.Editor
 		}
 
 		/// <summary>
-		/// 점프해서 갈 자리가 어떤 종류인지
+		/// 점프해서 갈 자리가 어떤 종류인지.
+		/// 분기 목록에서도 어디로 가는지 보여줘야 해서 밖에 열어둠
 		/// </summary>
-		private static string DescribeTargetKind(JumpTarget target)
+		public static string DescribeTargetKind(JumpTarget target)
 		{
 			if (target == null)
 			{

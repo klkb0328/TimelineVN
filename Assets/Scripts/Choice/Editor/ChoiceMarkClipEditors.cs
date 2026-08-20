@@ -1,4 +1,6 @@
+using UnityEditor;
 using UnityEditor.Timeline;
+using UnityEngine;
 using UnityEngine.Timeline;
 
 namespace TimelineVN.Choice.Editor
@@ -37,7 +39,7 @@ namespace TimelineVN.Choice.Editor
 
 		/// <summary>
 		/// 클립을 그릴 때 쓸 표시 옵션을 돌려준다.
-		/// 분기 끝이 연결 안 돼 있으면 경고를 얹는다
+		/// 분기 색을 얹고, 분기 끝이 연결 안 돼 있으면 경고도 얹는다
 		/// </summary>
 		public override ClipDrawOptions GetClipOptions(TimelineClip clip)
 		{
@@ -45,18 +47,40 @@ namespace TimelineVN.Choice.Editor
 			ClipDrawOptions options = base.GetClipOptions(clip);
 
 			var entry = clip.asset as ChoiceEntryClip;
-			if (entry == null || entry.HasExit)
+			if (entry == null)
 			{
 				return options;
 			}
 
+			// 클립이 좁아지면 몸통이 안 그려져서, 그때 남는 아래쪽 선을 같은 색으로 맞춰둔다.
+			// 색을 안 정한 클립까지 대입하면 투명이 들어가 원래 나오던 트랙 색 선이 사라진다
+			if (entry.HasBranchColor)
+			{
+				options.highlightColor = entry.BranchColor;
+			}
+
 			// 기본 옵션이 이미 오류를 물고 있으면 그게 더 급한 문제라 안 덮어씀
-			if (string.IsNullOrEmpty(options.errorText))
+			if (!entry.HasExit && string.IsNullOrEmpty(options.errorText))
 			{
 				options.errorText = NoExitWarning;
 			}
 
 			return options;
+		}
+
+		/// <summary>
+		/// 클립 몸통을 분기 색으로 칠한다. 짝인 분기 끝과 같은 색이 되어 보기편하게 하기위함임
+		/// TODO : 이거 나중에 Entry랑 Exit클립 사이에 있는 경우 다른트랙이더라도 시간으로 체크해서 색통일하는것도 고려.. 일단 성능상 문제있을까봐 제외했지만 사용자입장에선 편할듯
+		/// </summary>
+		public override void DrawBackground(TimelineClip clip, ClipBackgroundRegion region)
+		{
+			var entry = clip.asset as ChoiceEntryClip;
+			if (entry == null || !entry.HasBranchColor)
+			{
+				return;
+			}
+
+			EditorGUI.DrawRect(region.position, ChoiceBranchPalette.ToBodyColor(entry.BranchColor));
 		}
 	}
 
@@ -94,7 +118,7 @@ namespace TimelineVN.Choice.Editor
 
 		/// <summary>
 		/// 클립을 그릴 때 쓸 표시 옵션을 돌려준다.
-		/// 갈 자리가 안 골라져 있으면 경고를 얹는다
+		/// 짝인 분기 시작의 색을 얹고, 갈 자리가 안 골라져 있으면 경고도 보여줌
 		/// </summary>
 		public override ClipDrawOptions GetClipOptions(TimelineClip clip)
 		{
@@ -102,18 +126,56 @@ namespace TimelineVN.Choice.Editor
 			ClipDrawOptions options = base.GetClipOptions(clip);
 
 			var exit = clip.asset as ChoiceExitClip;
-			if (exit == null || exit.HasDestination)
+			if (exit == null)
 			{
 				return options;
 			}
 
+			// 클립이 좁아지면 몸통이 안 그려져서, 그때 남는 아래쪽 선을 같은 색으로 맞춰둔다
+			if (TryGetBranchColor(exit, out Color branchColor))
+			{
+				options.highlightColor = branchColor;
+			}
+
 			// 기본 옵션이 이미 오류를 물고 있으면 그게 더 급한 문제라 안 덮어씀
-			if (string.IsNullOrEmpty(options.errorText))
+			if (!exit.HasDestination && string.IsNullOrEmpty(options.errorText))
 			{
 				options.errorText = NoDestinationWarning;
 			}
 
 			return options;
+		}
+
+		/// <summary>
+		/// 클립 몸통을 분기 색으로 칠한다. 짝인 분기 시작과 같은 색임
+		/// </summary>
+		public override void DrawBackground(TimelineClip clip, ClipBackgroundRegion region)
+		{
+			var exit = clip.asset as ChoiceExitClip;
+			if (exit == null || !TryGetBranchColor(exit, out Color branchColor))
+			{
+				return;
+			}
+
+			EditorGUI.DrawRect(region.position, ChoiceBranchPalette.ToBodyColor(branchColor));
+		}
+
+		/// <summary>
+		/// 짝인 분기 시작이 든 색을 가져온다.
+		/// 색은 분기 시작 하나가 소유하고 여기서는 읽기만 해서, 둘이 어긋날 수가 없다
+		/// </summary>
+		private static bool TryGetBranchColor(ChoiceExitClip exit, out Color branchColor)
+		{
+			branchColor = Color.clear;
+
+			if (!exit.HasEntry || !exit.Entry.HasBranchColor)
+			{
+				return false;
+			}
+
+			branchColor = exit.Entry.BranchColor;
+
+			return true;
 		}
 	}
 
