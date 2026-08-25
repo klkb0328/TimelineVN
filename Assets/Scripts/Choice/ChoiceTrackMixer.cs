@@ -1,3 +1,4 @@
+using TimelineVN.Timeline;
 using UnityEngine.Playables;
 
 namespace TimelineVN.Choice
@@ -27,7 +28,8 @@ namespace TimelineVN.Choice
 				return;
 			}
 
-			ChoiceShowClipBehaviour clip = GetClip(playable, activeInput);
+			ScriptPlayable<ChoiceShowClipBehaviour> input = GetClipPlayable(playable, activeInput);
+			ChoiceShowClipBehaviour clip = input.GetBehaviour();
 
 			// 방금 만들어서 아직 문구를 안 적은 클립일때 끄기(이건 말그대로 연출제작중에 Play눌럿을때 막히는거 막기위함임)
 			if (clip.Data.Count == 0)
@@ -37,8 +39,8 @@ namespace TimelineVN.Choice
 				return;
 			}
 
-			// 선택된 클립 behaviour 사용하기
-			clip.Apply(choiceUI);
+			// 선택지는 시간을 안 쓰는데 ISingleClip 이 받게 돼 있어서 같이 넘긴다
+			clip.Apply(choiceUI, new ClipTime(input.GetTime(), input.GetDuration()));
 		}
 
 		/// <summary>
@@ -75,12 +77,12 @@ namespace TimelineVN.Choice
 		}
 
 		/// <summary>
-		/// 입력에 연결된 클립을 꺼낸다
+		/// 입력에 연결된 클립 노드를 꺼낸다.
+		/// behaviour 만이 아니라 노드째로 받는 건 여기서 시간도 읽어야 해서임
 		/// </summary>
-		private static ChoiceShowClipBehaviour GetClip(Playable playable, int inputIndex)
+		private static ScriptPlayable<ChoiceShowClipBehaviour> GetClipPlayable(Playable playable, int inputIndex)
 		{
-			var input = (ScriptPlayable<ChoiceShowClipBehaviour>)playable.GetInput(inputIndex);
-			return input.GetBehaviour();
+			return (ScriptPlayable<ChoiceShowClipBehaviour>)playable.GetInput(inputIndex);
 		}
 	}
 }

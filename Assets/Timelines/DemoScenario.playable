@@ -18,8 +18,6 @@ MonoBehaviour:
     entry: {fileID: 2485358704041291879}
   - text: "\uBAA8\uB978\uCC99\uD55C\uB2E4"
     entry: {fileID: 8924057832144231853}
-  - text: 
-    entry: {fileID: 0}
   defaultReturn: {fileID: 2099182317172789286}
 --- !u!114 &-7896947286293258959
 MonoBehaviour:
@@ -263,6 +261,7 @@ MonoBehaviour:
   line:
     speakerName: "\uB098"
     text: "\uADC0\uC5FD\uB2E4!"
+    secondsPerCharacter: 0.05
   waitForInput: 1
 --- !u!114 &-1939623361405040972
 MonoBehaviour:
@@ -279,6 +278,7 @@ MonoBehaviour:
   line:
     speakerName: 
     text: "\uBABB \uBCF8 \uCC99 \uBC1C\uAE38\uC744 \uB3CC\uB838\uB2E4."
+    secondsPerCharacter: 0.05
   waitForInput: 1
 --- !u!114 &-1531972729464713832
 MonoBehaviour:
@@ -369,8 +369,7 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: "C1 : \uB530\uB77C\uAC04\uB2E4 / \uBAA8\uB978\uCC99\uD55C\uB2E4
-      / (\uBE48 \uD56D\uBAA9)"
+    m_DisplayName: "C1 : \uB530\uB77C\uAC04\uB2E4 / \uBAA8\uB978\uCC99\uD55C\uB2E4"
   - m_Version: 1
     m_Start: 3
     m_ClipIn: 0
@@ -1003,8 +1002,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TimelineVN.Dialogue.DialogueClip
   line:
     speakerName: 
-    text: "\uADF8\uB0A0 \uC774\uD6C4\uB85C, \uADF8 \uD480\uC232\uC744 \uC9C0\uB0A0
-      \uB54C\uB9C8\uB2E4 \uBC1C\uAC78\uC74C\uC774 \uB290\uB824\uC84C\uB2E4."
+    text: "\uADF8\uB0A0 \uC774\uD6C4\uB85C \uADF8 \uD480\uC232\uC744 \uC9C0\uB0A0
+      \uB54C\uB9C8\uB2E4 \uBC1C\uAC78\uC74C\uC774 \uC800\uC808\uB85C \uB290\uB824\uC84C\uB2E4.
+      \r\n"
+    secondsPerCharacter: 0.05
   waitForInput: 1
 --- !u!114 &2099182317172789286
 MonoBehaviour:
@@ -1033,6 +1034,7 @@ MonoBehaviour:
   line:
     speakerName: "\uB4C0"
     text: "..\uACE0\uB9C8\uC6CC"
+    secondsPerCharacter: 0.05
   waitForInput: 1
 --- !u!114 &2485358704041291879
 MonoBehaviour:
@@ -1063,6 +1065,7 @@ MonoBehaviour:
   line:
     speakerName: "\uB098"
     text: "\uC6B0\uC640! \uB10C \uB204\uAD6C\uC57C?"
+    secondsPerCharacter: 0.05
   waitForInput: 1
 --- !u!114 &5420999537442954256
 MonoBehaviour:
@@ -1291,8 +1294,8 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: "\uADF8\uB0A0 \uC774\uD6C4\uB85C, \uADF8 \uD480\uC232\uC744 \uC9C0\uB0A0
-      \uB54C\uB9C8\uB2E4 \uBC1C\uAC78\uC74C\uC774 \uB290\uB824\uC84C\uB2E4."
+    m_DisplayName: "\uADF8\uB0A0 \uC774\uD6C4\uB85C \uADF8 \uD480\uC232\uC744 \uC9C0\uB0A0
+      \uB54C\uB9C8\uB2E4 \uBC1C\uAC78\uC74C\uC774 \uC800\uC808\uB85C \uB290\uB824\uC84C\uB2E4.  "
   - m_Version: 1
     m_Start: 14.5
     m_ClipIn: 0
@@ -1913,6 +1916,7 @@ MonoBehaviour:
   line:
     speakerName: 
     text: "\uD480\uC232\uC774 \uBC14\uC2A4\uB77D \uAC70\uB838\uB2E4."
+    secondsPerCharacter: 0.05
   waitForInput: 1
 --- !u!114 &7070431325194859747
 MonoBehaviour:
@@ -1929,6 +1933,7 @@ MonoBehaviour:
   line:
     speakerName: "\uB4C0"
     text: "\uB098? \uB098\uB294 \uB4C0\uC57C. \uD480\uC78E \uC694\uC815\uC774\uC9C0"
+    secondsPerCharacter: 0.05
   waitForInput: 1
 --- !u!114 &7257177857389173290
 MonoBehaviour:
@@ -1959,6 +1964,7 @@ MonoBehaviour:
   line:
     speakerName: 
     text: "\uBD80\uB044\uB7EC\uC6B4\uC9C0 \uC2A4\uB974\uB975 \uC0AC\uB77C\uC84C\uB2E4."
+    secondsPerCharacter: 0.05
   waitForInput: 1
 --- !u!114 &8924057832144231853
 MonoBehaviour:

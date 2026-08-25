@@ -27,10 +27,11 @@ namespace TimelineVN.Dialogue
 		private TMP_Text dialogueLabel;
 
 		/// <summary>
-		/// 대사 한 줄을 대사창에 표시한다
+		/// 대사 한 줄을 대사창에 표시한다.
+		/// visibleCharacters 는 앞에서부터 몇 글자까지 보일지다. 타이핑 효과가 이걸로 굴러간다
 		/// TODO : 일단 당분간 작업할때는 직접 받아서 처리하는 형식이고 추후 백로그로 시트를 쓰던 하는 방식으로 가져올듯?
 		/// </summary>
-		public void Show(DialogueLine line)
+		public void Show(DialogueLine line, int visibleCharacters)
 		{
 			if (line == null)
 			{
@@ -38,7 +39,10 @@ namespace TimelineVN.Dialogue
 				return;
 			}
 
+			// 텍스트는 통째로 넣고 보이는 글자 수만 줄인다.
+			// 잘라서 넣으면 매 프레임 새 문자열이 생기고 줄바꿈도 다시 계산된다
 			dialogueLabel.text = line.Text;
+			dialogueLabel.maxVisibleCharacters = visibleCharacters;
 
 			// 나레이션은 화자 이름을 빈 문자열로 두어 아무것도 그리지 않는다
 			speakerLabel.text = line.HasSpeaker ? line.SpeakerName : string.Empty;

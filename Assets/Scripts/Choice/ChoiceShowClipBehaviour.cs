@@ -23,9 +23,10 @@ namespace TimelineVN.Choice
 		}
 
 		/// <summary>
-		/// 들고 있는 선택지들을 화면에 띄운다
+		/// 들고 있는 선택지들을 화면에 띄운다.
+		/// 선택지는 구간 어디쯤이든 똑같이 떠 있으면 되니까 time 은 안 쓴다
 		/// </summary>
-		public void Apply(ChoiceUI choiceUI)
+		public void Apply(ChoiceUI choiceUI, ClipTime time)
 		{
 			choiceUI.Show(Data);
 		}

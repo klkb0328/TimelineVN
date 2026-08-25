@@ -1,4 +1,5 @@
 using UnityEditor.Timeline;
+using UnityEngine;
 using UnityEngine.Timeline;
 
 namespace TimelineVN.Dialogue.Editor
@@ -10,6 +11,11 @@ namespace TimelineVN.Dialogue.Editor
 	[CustomTimelineEditor(typeof(DialogueClip))]
 	public class DialogueClipEditor : ClipEditor
 	{
+		/// <summary>
+		/// 타이핑이 빨라진 클립에 칠할 주황색
+		/// </summary>
+		private static readonly Color AcceleratedColor = new Color(1f, 0.55f, 0.15f);
+
 		/// <summary>
 		/// 클립이 바뀌었을 때 그 대사를 클립 이름에 반영한다
 		/// 이렇게 해야 하눈에 볼수있음.
@@ -44,9 +50,25 @@ namespace TimelineVN.Dialogue.Editor
 				return options;
 			}
 
-			options.tooltip = BuildTooltip(dialogueClip.Line);
+			TypingData typing = BuildTypingData(clip, dialogueClip);
+			options.tooltip = BuildTooltip(dialogueClip.Line, typing);
+
+			// errorText 를 안 쓰고 색으로 알린다. 그걸 채우면 Timeline 이 넣는 오류 표시랑 툴팁이 같이 지워짐
+			if (typing.IsAccelerated)
+			{
+				options.highlightColor = AcceleratedColor;
+			}
 
 			return options;
+		}
+
+		/// <summary>
+		/// 이 클립의 대사가 어떻게 찍힐지 계산한다.
+		/// 인스펙터도 같은 값을 보여줘야 해서 밖에서 부를 수 있게 열어둠
+		/// </summary>
+		public static TypingData BuildTypingData(TimelineClip clip, DialogueClip dialogueClip)
+		{
+			return new TypingData(dialogueClip.Line.CharacterCount, dialogueClip.Line.SecondsPerCharacter, clip.duration);
 		}
 
 		/// <summary>
@@ -64,21 +86,24 @@ namespace TimelineVN.Dialogue.Editor
 		}
 
 		/// <summary>
-		/// 클립에 마우스를 올렸을 때 띄울 화자와 대사 전문을 만든다
+		/// 클립에 마우스를 올렸을 때 띄울 화자와 대사 전문을 만든다.
+		/// 타이핑이 빨라지는 클립이면 왜 그런지도 뒤에 붙인다
 		/// </summary>
-		private static string BuildTooltip(DialogueLine line)
+		private static string BuildTooltip(DialogueLine line, TypingData typing)
 		{
 			if (!line.HasText)
 			{
 				return string.Empty;
 			}
 
-			if (!line.HasSpeaker)
+			string body = line.HasSpeaker ? $"{line.SpeakerName}\n{line.Text}" : line.Text;
+
+			if (!typing.IsAccelerated)
 			{
-				return line.Text;
+				return body;
 			}
 
-			return $"{line.SpeakerName}\n{line.Text}";
+			return $"{body}\n\n클립이 짧아서 타이핑이 빨라짐\n{line.CharacterCount}자를 {typing.Duration:0.##}초에 찍는다";
 		}
 	}
 }

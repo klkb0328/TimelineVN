@@ -1,3 +1,4 @@
+using TimelineVN.Timeline;
 using UnityEngine.Playables;
 
 namespace TimelineVN.Dialogue
@@ -40,7 +41,13 @@ namespace TimelineVN.Dialogue
 			if (activeInput >= 0)
 			{
 				needsClear = false;
-				GetClip(playable, activeInput).Apply(dialogueUI);
+
+				ScriptPlayable<DialogueClipBehaviour> input = GetClipPlayable(playable, activeInput);
+
+				// 클립 안에서 얼마나 흘렀는지를 넘겨야 타이핑이 어디까지 찍혔는지 나온다
+				// 유니태스크나 코루틴으로 안한이유는 ProcessFrame이 어차피 매프레임 불리기도하고,
+				// 스크럽에서 이게더 낫다고 판단했음 코루틴이나 유니태스크는 플레이중에만 도니까..
+				input.GetBehaviour().Apply(dialogueUI, new ClipTime(input.GetTime(), input.GetDuration()));
 
 				return;
 			}
@@ -52,7 +59,7 @@ namespace TimelineVN.Dialogue
 			}
 
 			needsClear = false;
-			dialogueUI.Show(EmptyLine);
+			dialogueUI.Show(EmptyLine, 0);
 		}
 
 		/// <summary>
@@ -73,13 +80,12 @@ namespace TimelineVN.Dialogue
 		}
 
 		/// <summary>
-		/// 입력에 연결된 클립을 꺼낸다
+		/// 입력에 연결된 클립 노드를 꺼낸다.
+		/// behaviour 만이 아니라 노드째로 받는 건 여기서 시간이랑 길이도 읽어야 해서임
 		/// </summary>
-		private static DialogueClipBehaviour GetClip(Playable playable, int inputIndex)
+		private static ScriptPlayable<DialogueClipBehaviour> GetClipPlayable(Playable playable, int inputIndex)
 		{
-			ScriptPlayable<DialogueClipBehaviour> input = (ScriptPlayable<DialogueClipBehaviour>)playable.GetInput(inputIndex);
-
-			return input.GetBehaviour();
+			return (ScriptPlayable<DialogueClipBehaviour>)playable.GetInput(inputIndex);
 		}
 	}
 }
