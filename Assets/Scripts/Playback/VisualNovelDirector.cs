@@ -1,6 +1,7 @@
 using TimelineVN.Choice;
 using TimelineVN.Timeline;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
@@ -15,6 +16,11 @@ namespace TimelineVN.Playback
 	public class VisualNovelDirector : MonoBehaviour
 	{
 		/// <summary>
+		/// 자동재생 대기 시간 기본값
+		/// </summary>
+		private const float DefaultAutoAdvanceWaitSeconds = 1.2f;
+
+		/// <summary>
 		/// 다음 대사로 진행하는 입력. 스페이스, 마우스 좌클릭, 터치가 묶여 있다
 		/// Dialogue Advance 쓸거임.
 		/// </summary>
@@ -26,6 +32,12 @@ namespace TimelineVN.Playback
 		/// </summary>
 		[SerializeField]
 		private ChoiceUI choiceUI;
+
+		/// <summary>
+		/// 자동재생일 때 대사 하나에서 기다리는 시간. 이만큼 지나면 저절로 다음 대사로 넘어간다
+		/// </summary>
+		[SerializeField]
+		private float autoAdvanceWaitSeconds = DefaultAutoAdvanceWaitSeconds;
 
 		/// <summary>
 		/// 이 오브젝트에 붙은 타임라인 재생기. 재생할 타임라인이 바뀌었는지도 여기서 읽는다
@@ -43,10 +55,32 @@ namespace TimelineVN.Playback
 		private VNTimeScanner scanner;
 
 		/// <summary>
+		/// 자동재생과 배속을 들고 있다. 지금 속도와 자동으로 넘길 때가 됐는지를 여기에 묻는다
+		/// </summary>
+		private PlaybackModeControl playbackMode;
+
+		/// <summary>
 		/// 지금 스캐너를 만들 때 쓴 타임라인(=시나리오).
 		/// director 의 것과 달라지면 타임라인이 교체된 것이므로 스캐너를 새로 만든다
 		/// </summary>
 		private TimelineAsset cachedTimeline;
+
+		/// <summary>
+		/// 자동재생이 켜져 있는지. 재생 조작 UI 가 버튼 표시를 맞추는 데 쓴다
+		/// </summary>
+		public bool IsAutoAdvanceEnabled => playbackMode.IsAutoAdvanceEnabled;
+
+		/// <summary>
+		/// 배속이 켜져 있는지. 재생 조작 UI 가 버튼 표시를 맞추는 데 쓴다
+		/// </summary>
+		public bool IsSpeedBoosted => playbackMode.IsSpeedBoosted;
+
+		/// <summary>
+		/// 자동재생일 때 기다릴 시간.
+		/// 0 이면 기본값을 쓴다. 이 필드가 생기기 전에 저장된 씬이 0 으로 열려서임
+		/// </summary>
+		private float AutoAdvanceWaitSeconds =>
+			autoAdvanceWaitSeconds > 0f ? autoAdvanceWaitSeconds : DefaultAutoAdvanceWaitSeconds;
 
 		/// <summary>
 		/// 관장할 하위 객체를 만든다.
@@ -56,6 +90,7 @@ namespace TimelineVN.Playback
 		{
 			director = GetComponent<PlayableDirector>();
 			timeControl = new DirectorTimeControl(director);
+			playbackMode = new PlaybackModeControl(AutoAdvanceWaitSeconds);
 		}
 
 		/// <summary>
@@ -141,13 +176,24 @@ namespace TimelineVN.Playback
 				// 기준 시각만 따라가야 재개했을 때 끌어다 놓은 자리에서 이어진다
 				scanner.ForceMoveTo(timeControl.CurrentTime);
 
-				if (!waitingForSelection && WasAdvancePressed())
+				// 고르는 동안에는 저절로 넘어가면 안 된다. 켜둔 것은 그대로 두고 시간만 안 센다
+				if (waitingForSelection)
+				{
+					playbackMode.Reset();
+
+					return;
+				}
+
+				if (WasAdvancePressed() || playbackMode.Tick(Time.deltaTime))
 				{
 					timeControl.Resume();
 				}
 
 				return;
 			}
+
+			// 대기 밖에서는 세지 않는다. 다음 정지 지점에서 0 부터 다시 시작해야 함
+			playbackMode.Reset();
 
 			// 연출 도중 입력하면 기다리지 않고 지금 대사의 대기 지점으로 건너뛴다. 모든 트랙이
 			// 상태형이라 건너뛰어도 그 시점의 표정과 배경이 정확히 나온다.
@@ -171,6 +217,25 @@ namespace TimelineVN.Playback
 			{
 				ApplyPoint(point);
 			}
+		}
+
+		/// <summary>
+		/// 자동재생을 켜거나 끈다. 재생 조작 UI 의 버튼이 부른다
+		/// </summary>
+		public void ToggleAutoAdvance()
+		{
+			playbackMode.ToggleAutoAdvance();
+		}
+
+		/// <summary>
+		/// 배속을 켜거나 끈다. 재생 조작 UI 의 버튼이 부른다
+		/// </summary>
+		public void ToggleSpeedBoost()
+		{
+			playbackMode.ToggleSpeedBoost();
+
+			// 모드는 몇 배인지만 안다. 실제로 그래프에 거는 것은 시간 제어의 몫이다
+			timeControl.SetSpeed(playbackMode.Speed);
 		}
 
 		/// <summary>
@@ -273,6 +338,13 @@ namespace TimelineVN.Playback
 				return false;
 			}
 
+			// 재생 조작 버튼을 누른 것이 대사 넘기기로도 잡히면 버튼 한 번에 대사까지 넘어간다.
+			// 화면의 한 점을 가리키는 장치만 본다. 키보드는 가리키는 자리가 없어 막을 이유가 없음
+			if (IsPointerDevice(advanceAction.action.activeControl?.device) && IsPointerOverUI())
+			{
+				return false;
+			}
+
 #if UNITY_EDITOR
 			// 인스펙터 빈 곳을 클릭했는데 대사가 넘어가는 걸 막음. 일단 에디터는 마우스만 쓰는중이어서 마우스만 처리..
 			if (advanceAction.action.activeControl?.device is Mouse && !IsPointerInsideGameView())
@@ -302,6 +374,29 @@ namespace TimelineVN.Playback
 				&& position.x <= Screen.width && position.y <= Screen.height;
 		}
 #endif
+
+		/// <summary>
+		/// 화면의 한 점을 가리키는 장치인지. 마우스와 터치가 여기 해당한다
+		/// </summary>
+		private static bool IsPointerDevice(InputDevice device)
+		{
+			return device is Mouse || device is Touchscreen;
+		}
+
+		/// <summary>
+		/// 포인터가 UI 위에 있는지.
+		/// 이 판정은 EventSystem 이 이번 프레임 입력을 처리한 뒤라야 맞는다. 우리가 LateUpdate 라
+		/// 조건을 만족하고, Update 보다 앞에서 부르면 직전 프레임 값이 나온다
+		/// </summary>
+		private static bool IsPointerOverUI()
+		{
+			if (EventSystem.current == null)
+			{
+				return false;
+			}
+
+			return EventSystem.current.IsPointerOverGameObject();
+		}
 
 		/// <summary>
 		/// 진행 입력을 켜거나 끈다

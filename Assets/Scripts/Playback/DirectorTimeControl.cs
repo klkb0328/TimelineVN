@@ -86,6 +86,23 @@ namespace TimelineVN.Playback
 		}
 
 		/// <summary>
+		/// 멈춰 있지 않을 때 흐를 속도를 정한다.
+		/// 정지 중에 부르면 값만 바꾸고 그래프는 0 인 채로 둔다. Resume 이 새 값으로 복원한다
+		/// </summary>
+		public void SetSpeed(double speed)
+		{
+			playbackSpeed = speed;
+
+			// 대기 중에 걸면 정지가 풀려 대사가 그냥 지나간다. 값만 받아두고 재개할 때 쓴다
+			if (isWaitingForInput)
+			{
+				return;
+			}
+
+			ApplySpeed(speed);
+		}
+
+		/// <summary>
 		/// 주어진 시각으로 옮기고 계속 흐르게 한다.
 		/// 옮긴 자리에서 멈추지 않는다는 점이 StopAt 과 다르다
 		/// </summary>

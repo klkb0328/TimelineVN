@@ -54,6 +54,10 @@ namespace TimelineVN.Dialogue
 		public void SetVisible(bool visible)
 		{
 			canvasGroup.alpha = visible ? 1f : 0f;
+
+			// alpha 만 내리면 화면에 아무것도 없는데 클릭이 그 자리에서 걸린다
+			canvasGroup.interactable = visible;
+			canvasGroup.blocksRaycasts = visible;
 		}
 	}
 }
