@@ -53,6 +53,11 @@ VN 은 클릭이나 터치로 한 칸씩 나아갑니다. 대사에서 기다려
 - 대사가 한 글자씩 찍힙니다. 재생 헤드를 끌면 그 시점 글자 수가 그대로 보입니다
 - 자동진행, 2배속 기능을 사용할 수 있는 버튼
 
+스프라이트 트랙
+
+- 스프라이트 트랙으로 표정을 바꿉니다. 이미지를 트랙에 끌어다 놓으면 클립이 되고,
+  여러 장을 한꺼번에 끌면 순서대로 놓입니다
+
 선택지와 분기
 
 - 선택지를 화면에 띄우고, 고르면 그 분기로 이어집니다
@@ -151,6 +156,12 @@ Assets/Scripts/
 │   ChoiceUI              선택지 화면. 결과를 들고 있는다
 │   ChoiceSlot            선택지 버튼 하나
 │   Editor/               자동 생성과 배선, 색칠, 경고, 내비게이터 창
+├─ SpriteSwap/         스프라이트 교체
+│   SpriteTrack           Timeline 트랙. SpriteRenderer 를 바인딩한다
+│   SpriteClip            클립. 스프라이트 하나를 들고 있다
+│   SpriteClipBehaviour   클립의 실행부. Apply 를 제공한다
+│   SpriteTrackMixer      활성 클립을 골라 Apply 를 부른다
+│   Editor/               클립 이름 표시, 미설정 경고
 ├─ Timeline/           트랙 공통
 │   ISingleClip           한 시점에 하나만 활성인 클립 인터페이스
 │   IStopPointClip        정지를 요청하는 클립 인터페이스
